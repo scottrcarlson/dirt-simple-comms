@@ -1,5 +1,5 @@
 #!/bin/bash
-printf "Dirt Simple Comms v 0.1\n"
+printf "Dirt Simple Comms v 0.1.1\n"
 printf "........................\n"
 
 function ctrl_c() {
@@ -17,21 +17,32 @@ function ctrl_c() {
 function show_help() {
     printf "\nDirt Simple Comms v0.1\n"  
     printf "........................\n"
-    printf "USAGE\n"
+    printf "USAGE over ip\n"
     printf "    dsc -i x.x.x.x -r x.x.x.x --call\n"
-    printf "or\n"
+    printf "AND on opposing machine\n"
     printf "    dsc -i x.x.x.x -r x.x.x.x --wait\n"
+    printf "........................\n"
+    printf "OR over serial via SLIP"
+    printf "........................\n"
+    printf "    dsc -i x.x.x.x -r x.x.x.x --slip /dev/ttyAMA0 --call\n"
+    printf "AND on opposing machine\n"
+    printf "    dsc -i x.x.x.x -r x.x.x.x --slip /dev/ttyUSB0 --wait\n"
+    printf "........................\n"
     printf "OPTIONS\n"
     printf "    -l/, --local ip_addr       Local IP Address\n"
     printf "    -r/, --remote ip_addr      Remote IP Address\n"
+    printf "    -s/, --slip serialDevice   Enable SLIP Mode over Serial Device, will use Local/Remote IP\n"
+    printf "    -b/, --baud baudrate       Baud Rate (Default:115200)\n"
     printf "    --call                     Active Call Mode (i.e. client mode)\n"
-    printf "    --wait                     Active Call Mode (i.e. client mode)\n"
+    printf "    --wait                     Active Call Mode (i.e. client mode)\n" 
     printf "    --noinput                  Disable Audio Input for IHU\n"
     printf "........................\n\n"
 }
 
-# Check if any arguments are passed
-ARG_VALID=0
+#Initial Defaults
+SLIP_BAUD=115200
+
+ARG_VALID=0 # Simple argument validation mechanism (counter)
 
 while [[ $# > 0 ]]
 do
@@ -45,33 +56,39 @@ case $key in
     ;;
     -r|--remote)
     REMOTE_IP_ADDR="$2"
-    shift # past argument=value
+    shift
+    ((ARG_VALID++))
+    ;;
+    -s|--slip)
+    SLIP_DEV="$2"
+    shift
+    ((ARG_VALID++))
+    ;;
+    -b|--baud)
+    SLIP_BAUD="$2"
+    shift
     ((ARG_VALID++))
     ;;
     --call)
     CALL_MODE=YES
-    shift # past argument with no value
     ((ARG_VALID++))
     ;;
     --wait)
     CALL_MODE=NO
-    shift # past argument with no value
     ((ARG_VALID++))
     ;;
     --noinput)
     IHU_ARGS="$1"
-    shift # past argument with no value
     ;;
     --help)
     show_help
     exit 0
-    shift # past argument with no value
     ;;
     *)
             # unknown option
     ;;
 esac
-shift # past argument or value
+#shift # past argument or value # We could use this to capture final arg (not used here yet)
 done
 
 if [[ $ARG_VALID -ne 3 ]] ; then                  # Make final determination.
@@ -86,8 +103,8 @@ echo "Remote IP:${REMOTE_IP_ADDR}"
 trap ctrl_c INT
 
 #Create and Configure our SLIP
-printf "configuring SLIP Between ($LOCAL_IP_ADDR) --> ($REMOTE_IP_ADDR)..."
-slattach -p slip -s 115200 /dev/ttyAMA0 > /dev/null &
+printf "configuring SLIP Between $LOCAL_IP_ADDR --> $REMOTE_IP_ADDR Over $SLIP_DEV"
+slattach -p slip -s $SLIP_BAUD $SLIP_DEV > /dev/null &
 SLIP_PID=$!
 printf "PID ($SLIP_PID)..."
 sleep 1
