@@ -9,7 +9,8 @@ function ctrl_c() {
     #kill -1 $NC_IHU_PID #2> /dev/null    #Seem to be getting som other PID
     #kill -1 $NC_UTALK_PID #2> /dev/null  #Seem to be getting some other PID
     killall nc --quiet > /dev/null 1> /dev/null 2> /dev/null
-    kill -1 $SSH_PID 2> /dev/null
+    kill -1 $SSH_PID1 2> /dev/null
+    kill -1 $SSH_PID2 2> /dev/null
     kill -1 $SLIP_PID  2> /dev/null
     exit 0
 }
@@ -135,8 +136,10 @@ if [[ $CALL_MODE == "YES" ]] ; then                  # Make final determination.
     printf "ok\n"
     #Time to create our ssh tunnel (local port forward)
     printf "creating ssh tunnel..."
-    ssh -N -L 1794:localhost:1794 root@$REMOTE_IP_ADDR &
-    SSH_PID=$!
+    ssh -N -L 1794:localhost:1794 scott@$REMOTE_IP_ADDR &
+    SSH_PID1=$!
+    ssh -N -L 1700:localhost:1700 scott@$REMOTE_IP_ADDR &
+    SSH_PID2=$!
     printf "PID ($SSH_PID)..."
     printf "done.\n"
 fi
