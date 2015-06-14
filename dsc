@@ -1,5 +1,5 @@
 #!/bin/bash
-printf "Dirt Simple Comms v 0.1.1\n"
+printf "Dirt Simple Comms v 0.1.5\n"
 printf "........................\n"
 
 function ctrl_c() {
@@ -35,13 +35,13 @@ function show_help() {
     printf "    -b/, --baud baudrate       Baud Rate (Default:115200)\n"
     printf "    --call                     Active Call Mode (i.e. client mode)\n"
     printf "    --wait                     Active Call Mode (i.e. client mode)\n" 
+    printf "    --noping                   Disable Ping Test\n"
     printf "    --noinput                  Disable Audio Input for IHU\n"
     printf "........................\n\n"
 }
 
 #Initial Defaults
 SLIP_BAUD=115200
-CALL_MODE=NO
 ARG_VALID=0 # Simple argument validation mechanism (counter)
 
 while [[ $# > 0 ]]
@@ -78,6 +78,9 @@ case $key in
     --noinput)
     IHU_ARGS="$1"
     ;;
+    --noping)
+    NO_PING="YES"
+    ;;
     --help)
     show_help
     exit 0
@@ -111,25 +114,28 @@ if [[ $SLIP_DEV != "" ]] ; then                  # Make final determination.
     printf "done\n"
 fi
 
-#Lets try to find the remote machine
-printf "waiting for remote machine..."
-((count = 100))                            # Maximum number to try.
-while [[ $count -ne 0 ]] ; do
-    ping -c 1 $REMOTE_IP_ADDR > /dev/null               # Try once.
-    rc=$?
-    if [[ $rc -eq 0 ]] ; then
-        ((count = 1))                      # If okay, flag to exit loop.
+
+if [[ $NO_PING != "YES" ]] ; then
+    #Lets try to find the remote machine
+    printf "waiting for remote machine..."
+    ((count = 100))                            # Maximum number to try.
+    while [[ $count -ne 0 ]] ; do
+        ping -c 1 $REMOTE_IP_ADDR > /dev/null               # Try once.
+        rc=$?
+        if [[ $rc -eq 0 ]] ; then
+            ((count = 1))                      # If okay, flag to exit loop.
+        fi
+        ((count = count - 1))                  # So we don't go forever.
+    done
+
+    if [[ $rc -eq 0 ]] ; then                  # Make final determination.
+        printf "ok\n"
+
+    else
+        printf "failed\n"
+        printf "could not find machine at $REMOTE_IP_ADDR\n"
+        exit 1
     fi
-    ((count = count - 1))                  # So we don't go forever.
-done
-
-if [[ $rc -eq 0 ]] ; then                  # Make final determination.
-    printf "ok\n"
-
-else
-    printf "failed\n"
-    printf "could not find machine at $REMOTE_IP_ADDR\n"
-    exit 1
 fi
 
 if [[ $CALL_MODE == "YES" ]] ; then                  # Make final determination.
@@ -165,14 +171,13 @@ fi
 printf "done.\n"
 
 #HACK Waiting to make sure remote machine is waiting for a call (ihu)
-printf "Pausing 15 seconds to allow remote machine to intialize."
+printf "Pausing 10 seconds to allow remote machine to intialize."
 if [[ $CALL_MODE == "YES" ]] ; then
     sleep 10
 fi
 
 #Start IHU
-printf "Starting IHU .\n"
-printf "$IHU_ARGS"
+printf "Starting IHU.\n"
 if [[ $CALL_MODE == "YES" ]] ; then
     ihu --call $REMOTE_IP_ADDR --nogui > /dev/null 2> /dev/null &
 else
