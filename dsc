@@ -35,7 +35,6 @@ function show_help() {
     printf "    -b/, --baud baudrate       Baud Rate (Default:115200)\n"
     printf "    --call                     Active Call Mode (i.e. client mode)\n"
     printf "    --wait                     Active Call Mode (i.e. client mode)\n" 
-    printf "    --noping                   Disable Ping Test\n"
     printf "    --noinput                  Disable Audio Input for IHU\n"
     printf "........................\n\n"
 }
@@ -78,9 +77,6 @@ case $key in
     --noinput)
     IHU_ARGS="$1"
     ;;
-    --noping)
-    NO_PING="YES"
-    ;;
     --help)
     show_help
     exit 0
@@ -112,11 +108,8 @@ if [[ $SLIP_DEV != "" ]] ; then                  # Make final determination.
     sleep 1
     route add -host $REMOTE_IP_ADDR dev sl0 > /dev/null
     printf "done\n"
-fi
 
-
-if [[ $NO_PING != "YES" ]] ; then
-    #Lets try to find the remote machine
+    #Lets try to find the remote machine to prop up their slip interface
     printf "waiting for remote machine..."
     ((count = 100))                            # Maximum number to try.
     while [[ $count -ne 0 ]] ; do
