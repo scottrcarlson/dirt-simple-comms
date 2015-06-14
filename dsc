@@ -165,8 +165,9 @@ fi
 printf "done.\n"
 
 #HACK Waiting to make sure remote machine is waiting for a call (ihu)
+printf "Pausing 15 seconds to allow remote machine to intialize."
 if [[ $CALL_MODE == "YES" ]] ; then
-    sleep 5
+    sleep 10
 fi
 
 #Start IHU
