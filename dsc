@@ -142,7 +142,7 @@ if [[ $CALL_MODE == "YES" ]] ; then                  # Make final determination.
     printf "ok\n"
     #Time to create our ssh tunnel (local port forward)
     printf "creating ssh tunnel..."
-    ssh -N -L 1794:localhost:1794 root@192.168.0.2 &
+    ssh -N -L 1794:localhost:1794 root@$REMOTE_IP_ADDR &
     SSH_PID=$!
     printf "PID ($SSH_PID)..."
     printf "done.\n"
