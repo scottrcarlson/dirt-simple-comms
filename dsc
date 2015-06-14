@@ -1,5 +1,5 @@
 #!/bin/bash
-printf "Dirt Simple Comms v 0.1.5\n"
+printf "Dirt Simple Comms v 0.1.6\n"
 printf "........................\n"
 
 function ctrl_c() {
@@ -136,11 +136,13 @@ if [[ $CALL_MODE == "YES" ]] ; then                  # Make final determination.
     printf "ok\n"
     #Time to create our ssh tunnel (local port forward)
     printf "creating ssh tunnel..."
-    ssh -N -L 1794:localhost:1794 pi@$REMOTE_IP_ADDR &
+    ssh -N -L 1794:localhost:1794 root@$REMOTE_IP_ADDR &
     SSH_PID1=$!
-    ssh -N -L 1700:localhost:1700 pi@$REMOTE_IP_ADDR &
+    sleep 2
+    ssh -N -L 1700:localhost:1700 root@$REMOTE_IP_ADDR &
     SSH_PID2=$!
-    printf "PID ($SSH_PID)..."
+    printf "PID ($SSH_PID1 and $SSH_PID2)..."
+    sleep 2
     printf "done.\n"
 fi
 
@@ -148,20 +150,20 @@ fi
 if [[ $CALL_MODE == "YES" ]] ; then                  # Make final determination.
     printf "creating udp to tcp converter..."
     mkfifo /tmp/fifo_dsc-ihu 2> /dev/null
-    nc -l -u -p 1793 < /tmp/fifo_dsc-ihu | nc localhost 1794 > /tmp/fifo_dsc-ihu &
+    nc -k -l -u -p 1793 < /tmp/fifo_dsc-ihu | nc localhost 1794 > /tmp/fifo_dsc-ihu &
     NC_IHU_PID=$!
 
     mkfifo /tmp/fifo_dsc-utalk 2> /dev/null
-    nc -l -u -p 1701 < /tmp/fifo_dsc-utalk | nc localhost 1700 > /tmp/fifo_dsc-utalk &
+    nc -k -l -u -p 1701 < /tmp/fifo_dsc-utalk | nc localhost 1700 > /tmp/fifo_dsc-utalk &
     NC_UTALK_PID=$!
 else
     printf "creating tcp to udp converter..."
     mkfifo /tmp/fifo_dsc-ihu 2> /dev/null
-    nc -l -p 1794 < /tmp/fifo_dsc | nc -u localhost 1793 > /tmp/fifo_dsc &
+    nc -k -l -p 1794 < /tmp/fifo_dsc | nc -h -u localhost 1793 > /tmp/fifo_dsc &
     NC_IHU_PID=$!
 
     mkfifo /tmp/fifo_dsc-utalk 2> /dev/null
-    nc -l -p 1700 < /tmp/fifo_dsc-utalk | nc -u localhost 1701 > /tmp/fifo_dsc-utalk &
+    nc -k -l -p 1700 < /tmp/fifo_dsc-utalk | nc -h -u localhost 1701 > /tmp/fifo_dsc-utalk &
     NC_UTALK_PID=$!
 fi
 printf "done.\n"
@@ -175,7 +177,8 @@ fi
 #Start IHU
 printf "Starting IHU.\n"
 if [[ $CALL_MODE == "YES" ]] ; then
-    ihu --call localhost --nogui > /dev/null 2> /dev/null &
+    printf "Calling\n"
+    #ihu --call localhost --nogui #> /dev/null 2> /dev/null &
 else
     printf "Waiting for a call\n"
     ihu --wait --nogui $IHU_ARGS > /dev/null 2> /dev/null &
