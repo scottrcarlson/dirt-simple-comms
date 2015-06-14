@@ -6,7 +6,7 @@ function ctrl_c() {
     printf "\nExiting dsc.\nKeep it real! \n\n"
     printf "$IHU_PID $NC_IHU_PID $NC_UTALK_PID $SSH_PID $SLIP_PID\n\n"
     kill -1 $IHU_PID > /dev/null 1> /dev/null 2> /dev/null
-    #kill -1 $NC_IHU_PID #2> /dev/null    #Seem to be getting som other PID 
+    #kill -1 $NC_IHU_PID #2> /dev/null    #Seem to be getting som other PID
     #kill -1 $NC_UTALK_PID #2> /dev/null  #Seem to be getting some other PID
     killall nc --quiet > /dev/null 1> /dev/null 2> /dev/null
     kill -1 $SSH_PID 2> /dev/null
@@ -41,7 +41,7 @@ function show_help() {
 
 #Initial Defaults
 SLIP_BAUD=115200
-
+CALL_MODE=NO
 ARG_VALID=0 # Simple argument validation mechanism (counter)
 
 while [[ $# > 0 ]]
@@ -62,12 +62,10 @@ case $key in
     -s|--slip)
     SLIP_DEV="$2"
     shift
-    ((ARG_VALID++))
     ;;
     -b|--baud)
     SLIP_BAUD="$2"
     shift
-    ((ARG_VALID++))
     ;;
     --call)
     CALL_MODE=YES
@@ -88,7 +86,7 @@ case $key in
             # unknown option
     ;;
 esac
-#shift # past argument or value # We could use this to capture final arg (not used here yet)
+shift # past argument or value
 done
 
 if [[ $ARG_VALID -ne 3 ]] ; then                  # Make final determination.
@@ -96,24 +94,24 @@ if [[ $ARG_VALID -ne 3 ]] ; then                  # Make final determination.
     show_help
     exit 1
 fi
-echo "Local IP:${LOCAL_IP_ADDR}"
-echo "Remote IP:${REMOTE_IP_ADDR}"
 
 # trap ctrl-c and call ctrl_c()
 trap ctrl_c INT
 
-#Create and Configure our SLIP
-printf "configuring SLIP Between $LOCAL_IP_ADDR --> $REMOTE_IP_ADDR Over $SLIP_DEV"
-slattach -p slip -s $SLIP_BAUD $SLIP_DEV > /dev/null &
-SLIP_PID=$!
-printf "PID ($SLIP_PID)..."
-sleep 1
-ifconfig sl0 $LOCAL_IP_ADDR pointopoint $REMOTE_IP_ADDR up > /dev/null
-sleep 1
-route add -host $REMOTE_IP_ADDR dev sl0 > /dev/null
-printf "done\n"
+if [[ $SLIP_DEV != "" ]] ; then                  # Make final determination.
+    #Create and Configure our SLIP
+    printf "configuring SLIP Between $LOCAL_IP_ADDR --> $REMOTE_IP_ADDR Over $SLIP_DEV"
+    slattach -p slip -s $SLIP_BAUD $SLIP_DEV > /dev/null &
+    SLIP_PID=$!
+    printf "PID ($SLIP_PID)..."
+    sleep 1
+    ifconfig sl0 $LOCAL_IP_ADDR pointopoint $REMOTE_IP_ADDR up > /dev/null
+    sleep 1
+    route add -host $REMOTE_IP_ADDR dev sl0 > /dev/null
+    printf "done\n"
+fi
 
-#Lets try to find the remote machine through our SLIP interface
+#Lets try to find the remote machine
 printf "waiting for remote machine..."
 ((count = 100))                            # Maximum number to try.
 while [[ $count -ne 0 ]] ; do
