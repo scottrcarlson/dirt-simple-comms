@@ -136,9 +136,9 @@ if [[ $CALL_MODE == "YES" ]] ; then                  # Make final determination.
     printf "ok\n"
     #Time to create our ssh tunnel (local port forward)
     printf "creating ssh tunnel..."
-    ssh -N -L 1794:localhost:1794 scott@$REMOTE_IP_ADDR &
+    ssh -N -L 1794:localhost:1794 pi@$REMOTE_IP_ADDR &
     SSH_PID1=$!
-    ssh -N -L 1700:localhost:1700 scott@$REMOTE_IP_ADDR &
+    ssh -N -L 1700:localhost:1700 pi@$REMOTE_IP_ADDR &
     SSH_PID2=$!
     printf "PID ($SSH_PID)..."
     printf "done.\n"
@@ -175,7 +175,7 @@ fi
 #Start IHU
 printf "Starting IHU.\n"
 if [[ $CALL_MODE == "YES" ]] ; then
-    ihu --call $REMOTE_IP_ADDR --nogui > /dev/null 2> /dev/null &
+    ihu --call localhost --nogui > /dev/null 2> /dev/null &
 else
     printf "Waiting for a call\n"
     ihu --wait --nogui $IHU_ARGS > /dev/null 2> /dev/null &
@@ -185,7 +185,7 @@ IHU_PID=$!
 #Start utalk
 printf "Starting utalk.\n"
 if [[ $CALL_MODE == "YES" ]] ; then
-    utalk -c $REMOTE_IP_ADDR 1701
+    utalk -c localhost 1701
 else
     utalk -s 1701
 fi
