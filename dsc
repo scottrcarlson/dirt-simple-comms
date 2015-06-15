@@ -11,7 +11,7 @@ function ctrl_c() {
     kill -1 $SSH_PID2 &> /dev/null
     kill -1 $SLIP_PID  &> /dev/null
     cat logo
-    printf "NO CARRIER\n\n"
+    printf " NO CARRIER\n\n"
     exit 0
 }
 
@@ -30,6 +30,7 @@ function show_help() {
     printf "    dsc -i x.x.x.x -r x.x.x.x --slip /dev/ttyUSB0 --wait\n"
     printf "........................\n"
     printf "OPTIONS\n"
+    printf "    -u/, --user username       Remote SSH User Account\n"
     printf "    -l/, --local ip_addr       Local IP Address\n"
     printf "    -r/, --remote ip_addr      Remote IP Address\n"
     printf "    -s/, --slip serialDevice   Enable SLIP Mode over Serial Device, will use Local/Remote IP\n"
@@ -42,6 +43,7 @@ function show_help() {
 
 #Initial Defaults
 SLIP_BAUD=115200
+SSH_USER="root"
 ARG_VALID=0 # Simple argument validation mechanism (counter)
 
 while [[ $# > 0 ]]
@@ -65,6 +67,10 @@ case $key in
     ;;
     -b|--baud)
     SLIP_BAUD="$2"
+    shift
+    ;;
+    -u|--user)
+    SSH_USER="$2"
     shift
     ;;
     --call)
@@ -103,7 +109,6 @@ if [[ $SLIP_DEV != "" ]] ; then                  # Make final determination.
     printf "configuring SLIP Between $LOCAL_IP_ADDR --> $REMOTE_IP_ADDR Over $SLIP_DEV"
     slattach -p slip -s $SLIP_BAUD $SLIP_DEV > /dev/null &
     SLIP_PID=$!
-    printf "PID ($SLIP_PID)..."
     sleep 1
     ifconfig sl0 $LOCAL_IP_ADDR pointopoint $REMOTE_IP_ADDR up > /dev/null
     sleep 1
@@ -111,7 +116,7 @@ if [[ $SLIP_DEV != "" ]] ; then                  # Make final determination.
     printf "done\n"
 
     #Lets try to find the remote machine to prop up their slip interface
-    printf "waiting for remote machine..."
+    printf "waiting for remote machine (making sure SLIP is up)..."
     ((count = 100))                            # Maximum number to try.
     while [[ $count -ne 0 ]] ; do
         ping -c 1 $REMOTE_IP_ADDR > /dev/null               # Try once.
@@ -135,12 +140,11 @@ fi
 if [[ $CALL_MODE == "YES" ]] ; then                  # Make final determination.
     printf "ok\n"
     #Time to create our ssh tunnel (local port forward)
-    printf "creating ssh tunnel..."
-    ssh -N -L 1794:localhost:1794 root@$REMOTE_IP_ADDR &
+    printf "creating ssh tunnel (user: $SSH_USER). make sure you shared your key!..."
+    ssh -N -L 1794:localhost:1794 $SSH_USER@$REMOTE_IP_ADDR &
     SSH_PID1=$!
-    ssh -N -L 1700:localhost:1700 root@$REMOTE_IP_ADDR &
+    ssh -N -L 1700:localhost:1700 $SSH_USER@$REMOTE_IP_ADDR &
     SSH_PID2=$!
-    printf "PID ($SSH_PID1 and $SSH_PID2)..."
     printf "done.\n"
     sleep 2
 fi
