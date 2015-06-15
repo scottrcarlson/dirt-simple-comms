@@ -150,35 +150,35 @@ fi
 if [[ $CALL_MODE == "YES" ]] ; then                  # Make final determination.
     printf "creating udp to tcp converter..."
     mkfifo /tmp/fifo_dsc-ihu 2> /dev/null
-    nc -k -l -u -p 1793 < /tmp/fifo_dsc-ihu | nc localhost 1794 > /tmp/fifo_dsc-ihu &
+    nc -l -u -p 1793 < /tmp/fifo_dsc-ihu | nc localhost 1794 > /tmp/fifo_dsc-ihu &
     NC_IHU_PID=$!
 
     mkfifo /tmp/fifo_dsc-utalk 2> /dev/null
-    nc -k -l -u -p 1701 < /tmp/fifo_dsc-utalk | nc localhost 1700 > /tmp/fifo_dsc-utalk &
+    nc -l -u -p 1701 < /tmp/fifo_dsc-utalk | nc localhost 1700 > /tmp/fifo_dsc-utalk &
     NC_UTALK_PID=$!
 else
     printf "creating tcp to udp converter..."
     mkfifo /tmp/fifo_dsc-ihu 2> /dev/null
-    nc -k -l -p 1794 < /tmp/fifo_dsc | nc -h -u localhost 1793 > /tmp/fifo_dsc &
+    nc -l -p 1794 < /tmp/fifo_dsc | nc -h -u localhost 1793 > /tmp/fifo_dsc &
     NC_IHU_PID=$!
 
     mkfifo /tmp/fifo_dsc-utalk 2> /dev/null
-    nc -k -l -p 1700 < /tmp/fifo_dsc-utalk | nc -h -u localhost 1701 > /tmp/fifo_dsc-utalk &
+    nc -l -p 1700 < /tmp/fifo_dsc-utalk | nc -h -u localhost 1701 > /tmp/fifo_dsc-utalk &
     NC_UTALK_PID=$!
 fi
 printf "done.\n"
 
 #HACK Waiting to make sure remote machine is waiting for a call (ihu)
-printf "Pausing 10 seconds to allow remote machine to intialize."
-if [[ $CALL_MODE == "YES" ]] ; then
-    sleep 10
-fi
+#printf "Pausing 10 seconds to allow remote machine to intialize."
+#if [[ $CALL_MODE == "YES" ]] ; then
+#    sleep 10
+#fi
 
 #Start IHU
 printf "Starting IHU.\n"
 if [[ $CALL_MODE == "YES" ]] ; then
     printf "Calling\n"
-    #ihu --call localhost --nogui #> /dev/null 2> /dev/null &
+    ihu --call localhost --nogui #> /dev/null 2> /dev/null &
 else
     printf "Waiting for a call\n"
     ihu --wait --nogui $IHU_ARGS > /dev/null 2> /dev/null &
