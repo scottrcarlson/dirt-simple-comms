@@ -150,20 +150,20 @@ fi
 if [[ $CALL_MODE == "YES" ]] ; then                  # Make final determination.
     printf "creating udp to tcp converter..."
     mkfifo /tmp/fifo_dsc-ihu 2> /dev/null
-    nc -l -u -p 1793 < /tmp/fifo_dsc-ihu | nc localhost 1794 > /tmp/fifo_dsc-ihu &
+    nc -k -l -u -p 1793 < /tmp/fifo_dsc-ihu | nc localhost 1794 > /tmp/fifo_dsc-ihu &
     NC_IHU_PID=$!
 
     mkfifo /tmp/fifo_dsc-utalk 2> /dev/null
-    nc -l -u -p 1701 < /tmp/fifo_dsc-utalk | nc localhost 1700 > /tmp/fifo_dsc-utalk &
+    nc -k -l -u -p 1701 < /tmp/fifo_dsc-utalk | nc localhost 1700 > /tmp/fifo_dsc-utalk &
     NC_UTALK_PID=$!
 else
     printf "creating tcp to udp converter..."
     mkfifo /tmp/fifo_dsc-ihu 2> /dev/null
-    nc -l -p 1794 < /tmp/fifo_dsc | nc -h -u localhost 1793 > /tmp/fifo_dsc &
+    nc -k -l -p 1794 < /tmp/fifo_dsc | nc -u localhost 1793 > /tmp/fifo_dsc &
     NC_IHU_PID=$!
 
     mkfifo /tmp/fifo_dsc-utalk 2> /dev/null
-    nc -l -p 1700 < /tmp/fifo_dsc-utalk | nc -h -u localhost 1701 > /tmp/fifo_dsc-utalk &
+    nc -k -l -p 1700 < /tmp/fifo_dsc-utalk | nc -u localhost 1701 > /tmp/fifo_dsc-utalk &
     NC_UTALK_PID=$!
 fi
 printf "done.\n"
