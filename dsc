@@ -3,16 +3,15 @@ printf "Dirt Simple Comms v 0.1.6\n"
 printf "........................\n"
 
 function ctrl_c() {
-    printf "$IHU_PID $NC_IHU_PID $NC_UTALK_PID $SSH_PID $SLIP_PID\n\n"
-    kill -1 $IHU_PID > /dev/null 1> /dev/null 2> /dev/null
-    #kill -1 $NC_IHU_PID #2> /dev/null    #Seem to be getting som other PID
-    #kill -1 $NC_UTALK_PID #2> /dev/null  #Seem to be getting some other PID
-    killall nc --quiet > /dev/null 1> /dev/null 2> /dev/null
-    kill -1 $SSH_PID1 2> /dev/null
-    kill -1 $SSH_PID2 2> /dev/null
-    kill -1 $SLIP_PID  2> /dev/null
+    kill -1 $IHU_PID &> /dev/null
+    #kill -1 $NC_IHU_PID &> /dev/null #2> /dev/null    #Seem to be getting som other PID
+    #kill -1 $NC_UTALK_PID &> /dev/null #2> /dev/null  #Seem to be getting some other PID
+    killall nc --quiet &> /dev/null
+    kill -1 $SSH_PID1 &> /dev/null
+    kill -1 $SSH_PID2 &> /dev/null
+    kill -1 $SLIP_PID  &> /dev/null
     cat logo
-    printf "\nExiting dsc.\nKeep it real! \n\n"
+    printf "NO CARRIER\n\n"
     exit 0
 }
 
@@ -139,51 +138,43 @@ if [[ $CALL_MODE == "YES" ]] ; then                  # Make final determination.
     printf "creating ssh tunnel..."
     ssh -N -L 1794:localhost:1794 root@$REMOTE_IP_ADDR &
     SSH_PID1=$!
-    sleep 1
     ssh -N -L 1700:localhost:1700 root@$REMOTE_IP_ADDR &
     SSH_PID2=$!
     printf "PID ($SSH_PID1 and $SSH_PID2)..."
-    sleep 5
     printf "done.\n"
+    sleep 2
 fi
 
 #Now we must create a udp/tcp converter with netcat
 if [[ $CALL_MODE == "YES" ]] ; then                  # Make final determination.
     printf "creating udp to tcp converter..."
-    mkfifo /tmp/fifo_dsc-ihu 2> /dev/null
+    mkfifo /tmp/fifo_dsc-ihu &> /dev/null
     nc -k -l -u -p 1793 < /tmp/fifo_dsc-ihu | nc localhost 1794 > /tmp/fifo_dsc-ihu &
     NC_IHU_PID=$!
 
-    mkfifo /tmp/fifo_dsc-utalk 2> /dev/null
+    mkfifo /tmp/fifo_dsc-utalk &> /dev/null
     nc -k -l -u -p 1701 < /tmp/fifo_dsc-utalk | nc localhost 1700 > /tmp/fifo_dsc-utalk &
     NC_UTALK_PID=$!
 else
     printf "creating tcp to udp converter..."
-    mkfifo /tmp/fifo_dsc-ihu 2> /dev/null
+    mkfifo /tmp/fifo_dsc-ihu &> /dev/null
     nc -k -l -p 1794 < /tmp/fifo_dsc-ihu | nc -u localhost 1793 > /tmp/fifo_dsc-ihu &
     NC_IHU_PID=$!
 
-    mkfifo /tmp/fifo_dsc-utalk 2> /dev/null
+    mkfifo /tmp/fifo_dsc-utalk &> /dev/null
     nc -k -l -p 1700 < /tmp/fifo_dsc-utalk | nc -u localhost 1701 > /tmp/fifo_dsc-utalk &
     NC_UTALK_PID=$!
 fi
-sleep 10
 printf "done.\n"
-
-#HACK Waiting to make sure remote machine is waiting for a call (ihu)
-#printf "Pausing 10 seconds to allow remote machine to intialize."
-#if [[ $CALL_MODE == "YES" ]] ; then
-#    sleep 10
-#fi
 
 #Start IHU
 printf "Starting IHU.\n"
 if [[ $CALL_MODE == "YES" ]] ; then
     printf "Calling\n"
-    ihu --call localhost --nogui > /dev/null 2> /dev/null &
+    ihu --call localhost --nogui &> /dev/null &
 else
     printf "Waiting for a call\n"
-    ihu --wait --nogui $IHU_ARGS > /dev/null 2> /dev/null &
+    ihu --wait --nogui $IHU_ARGS &> /dev/null &
 fi
 IHU_PID=$!
 
