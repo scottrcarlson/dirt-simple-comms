@@ -17,8 +17,8 @@ function ctrl_c() {
     printf " NO CARRIER\n\n"
     if [[ $RESTART == "YES" ]] ; then
         RESTART=NO
-        printf  "Loop Mode Enabled, Will Restart in 10 seconds..."
-        sleep 10
+        printf  "Loop Mode Enabled, Will Restart in 5 seconds..."
+        sleep 5
         exec $0 $ARGS
     fi
     exit 0
@@ -150,7 +150,7 @@ if [[ $SLIP_DEV != "" ]] ; then                  # Make final determination.
         printf "could not find machine at $REMOTE_IP_ADDR\n"
         exit 1
     fi
-    sleep 5
+    sleep 10
 fi
 
 if [[ $CALL_MODE == "YES" ]] ; then                  # Make final determination.
