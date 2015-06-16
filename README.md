@@ -22,7 +22,7 @@ Configure for Resiliance / Compression / Clean Exit on Forward Failure
 3. Create ~/.ssh/config (if it doesn't already exist)
 4. Modify the config
 
-`TCPKeepAlive no
+TCPKeepAlive no
 
 ServerAliveInterval 60
 
@@ -32,5 +32,5 @@ Compression yes
 
 CompressionLevel 6
 
-ExitOnForwardFailure yes`
+ExitOnForwardFailure yes
 
