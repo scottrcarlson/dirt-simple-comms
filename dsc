@@ -1,6 +1,9 @@
 #!/bin/bash
 printf "Dirt Simple Comms v 0.1.6\n"
 printf "........................\n"
+ARGS="$*"
+printf "Args used: $ARGS\n"
+printf "........................\n"
 
 function ctrl_c() {
     kill -1 $IHU_PID &> /dev/null
@@ -12,6 +15,12 @@ function ctrl_c() {
     kill -1 $SLIP_PID  &> /dev/null
     cat logo
     printf " NO CARRIER\n\n"
+    if [[ $RESTART == "YES" ]] ; then
+        RESTART=NO
+        printf  "Loop Mode Enabled, Will Restart in 10 seconds..."
+        sleep 10
+        exec $0 $ARGS
+    fi
     exit 0
 }
 
@@ -38,6 +47,7 @@ function show_help() {
     printf "    --call                     Active Call Mode (i.e. client mode)\n"
     printf "    --wait                     Active Call Mode (i.e. client mode)\n" 
     printf "    --noinput                  Disable Audio Input for IHU\n"
+    printf "    --loop                     Will re-run this script on exit (inf loop)\n"
     printf "........................\n\n"
 }
 
@@ -45,6 +55,8 @@ function show_help() {
 SLIP_BAUD=115200
 SSH_USER="root"
 ARG_VALID=0 # Simple argument validation mechanism (counter)
+LOOP=NO     # Loop will trigger Restart=YES right before executing the final commands 
+RESTART=NO
 
 while [[ $# > 0 ]]
 do
@@ -84,6 +96,9 @@ case $key in
     --noinput)
     IHU_ARGS="$1"
     ;;
+    --loop)
+    LOOP=YES
+    ;;
     --help)
     show_help
     exit 0
@@ -106,7 +121,7 @@ trap ctrl_c INT
 
 if [[ $SLIP_DEV != "" ]] ; then                  # Make final determination.
     #Create and Configure our SLIP
-    printf "configuring SLIP Between $LOCAL_IP_ADDR --> $REMOTE_IP_ADDR Over $SLIP_DEV"
+    printf "configuring SLIP Between $LOCAL_IP_ADDR --> $REMOTE_IP_ADDR Over $SLIP_DEV..."
     slattach -p slip -s $SLIP_BAUD $SLIP_DEV > /dev/null &
     SLIP_PID=$!
     sleep 1
@@ -135,6 +150,7 @@ if [[ $SLIP_DEV != "" ]] ; then                  # Make final determination.
         printf "could not find machine at $REMOTE_IP_ADDR\n"
         exit 1
     fi
+    sleep 5
 fi
 
 if [[ $CALL_MODE == "YES" ]] ; then                  # Make final determination.
@@ -153,7 +169,7 @@ fi
 if [[ $CALL_MODE == "YES" ]] ; then                  # Make final determination.
     printf "creating udp to tcp converter..."
     mkfifo /tmp/fifo_dsc-ihu &> /dev/null
-    nc -k -l -u -p 1793 < /tmp/fifo_dsc-ihu | nc localhost 1794 > /tmp/fifo_dsc-ihu &
+    nc -k -l -u -p 1793 < /tmp/fifo_dsc-ihu | nc  localhost 1794 > /tmp/fifo_dsc-ihu & 
     NC_IHU_PID=$!
 
     mkfifo /tmp/fifo_dsc-utalk &> /dev/null
@@ -170,6 +186,12 @@ else
     NC_UTALK_PID=$!
 fi
 printf "done.\n"
+
+#If we are in loop mode, set RESTART=YES, trigger this way would allow to ctrl-c before getting here to exit
+if [[ $LOOP == "YES" ]] ; then
+    printf "Loop Mode Activated.\n"
+    RESTART=YES
+fi
 
 #Start IHU
 printf "Starting IHU.\n"
