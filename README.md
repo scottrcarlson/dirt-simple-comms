@@ -8,10 +8,10 @@ The goal is integrate various useful tools for de-centrialized encrypted p2p com
 4. utalk for Text Chat
 5. Option to use SLIP to run the stack over serial.
 6. Transport Medium (Internet, Serial, RF)
-7. Text Mode Only 
+7. Text Mode Only
+
 ----------------------------
-Tested on RPi and Debian Linux.
-More to details to follow..
+Tested on RPi and Debian Linux. More to details to follow..
 
 ----------------------------
 SSH Setup
