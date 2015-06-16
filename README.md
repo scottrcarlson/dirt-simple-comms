@@ -23,8 +23,14 @@ Configure for Resiliance / Compression / Clean Exit on Forward Failure
 4. Modify the config
 
 `TCPKeepAlive no
+
 ServerAliveInterval 60
+
 ServerAliveCountMax 5760
+
 Compression yes
+
 CompressionLevel 6
+
 ExitOnForwardFailure yes`
+
