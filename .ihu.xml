@@ -17,9 +17,9 @@
 	udp="1" 
 />
 <sound 
-	ringVolume="2" 
-	threshold="-96" 
-	txStop="3" 
+	ringVolume="1" 
+	threshold="-6" 
+	txStop="2" 
 	outputInterface="default" 
 	inputInterface="plughw:1,0" 
 	inputDriver="0" 
@@ -28,7 +28,7 @@
 <encoder 
 	dtx="1" 
 	vad="1" 
-	vbrQuality="5" 
+	vbrQuality="7" 
 	complexity="3" 
 	bitrateMode="1" 
 	abr="16" 
