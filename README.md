@@ -1,6 +1,6 @@
 # dirt-simple-comms
 
-The goal is integrate various useful tools for de-centrialized encrypted p2p communication.
+The goal is integrate various useful tools for de-centrialized encrypted communication.
 ----------------------------
 1. End to End Encyption via SSH
 2. UDP/TCP Conversion with Netcat
@@ -11,9 +11,9 @@ The goal is integrate various useful tools for de-centrialized encrypted p2p com
 7. Text Mode Only
 
 ----------------------------
-Tested on RPi and Debian Linux. More to details to follow..
-
+More to details to follow..
 ----------------------------
+
 SSH Setup
 Configure for Resiliance / Compression / Clean Exit on Forward Failure
 
@@ -27,4 +27,3 @@ ServerAliveCountMax 5760
 Compression yes
 CompressionLevel 6
 ExitOnForwardFailure yes
-----------------------------
