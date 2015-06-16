@@ -21,9 +21,10 @@ Configure for Resiliance / Compression / Clean Exit on Forward Failure
 2. Share Public Keys with Opposing End Points
 3. Create ~/.ssh/config (if it doesn't already exist)
 4. Modify the config
-TCPKeepAlive no
+
+`TCPKeepAlive no
 ServerAliveInterval 60
 ServerAliveCountMax 5760
 Compression yes
 CompressionLevel 6
-ExitOnForwardFailure yes
+ExitOnForwardFailure yes`
