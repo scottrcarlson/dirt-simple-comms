@@ -150,11 +150,12 @@ if [[ $SLIP_DEV != "" ]] ; then                  # Make final determination.
         printf "could not find machine at $REMOTE_IP_ADDR\n"
         exit 1
     fi
-    sleep 10
 fi
 
 if [[ $CALL_MODE == "YES" ]] ; then                  # Make final determination.
     printf "ok\n"
+    sleep 10
+
     #Time to create our ssh tunnel (local port forward)
     printf "creating ssh tunnel (user: $SSH_USER). make sure you shared your key!..."
     ssh -N -L 1794:localhost:1794 $SSH_USER@$REMOTE_IP_ADDR &
