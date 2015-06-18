@@ -1,0 +1,81 @@
+<!DOCTYPE IhuConfigXML>
+<ihu>
+<general 
+	autoHide="0" 
+	maxCalls="5" 
+	myName="" 
+	autoWait="0" 
+	autoAnswer="0" 
+	maxHosts="20" 
+	trayIcon="1" 
+/>
+<network 	
+	protocol="0" 
+	inPort="1793" 
+	outPort="1793" 
+	tcp="1" 
+	udp="1" 
+/>
+<sound 
+	ringVolume="1" 
+	threshold="-6" 
+	txStop="2" 
+	outputInterface="default" 
+	inputInterface="plughw:1,0" 
+	inputDriver="0" 
+	prePackets="5" 
+/>
+<encoder 
+	dtx="1" 
+	vad="1" 
+	vbrQuality="7" 
+	complexity="3" 
+	bitrateMode="1" 
+	abr="16" 
+	speexMode="2" 
+	quality="10" 
+/>
+<options 
+	agcHw="1" 
+	agcLevel="-9" 
+	agc="0" 
+	agcStep="20" 
+	adr="0" 
+	agcSw="0" 
+	adrMinDelay="0" 
+	agcControl="Capture" 
+	adrMaxDelay="150" 
+	adrStretch="5" 
+/>
+<security 
+	passwd="" 
+	showKey="0" 
+	random="1" 
+	crypt="0" 
+	keyLen="256" 
+	logFile="" 
+/>
+<host 
+	h5="" 
+	h10="" 
+	h6="" 
+	h11="" 
+	h7="" 
+	h12="" 
+	h8="" 
+	h13="" 
+	h9="" 
+	h14="" 
+	h15="" 
+	h16="" 
+	h17="" 
+	h18="" 
+	h19="" 
+	h0="" 
+	h1="" 
+	h2="" 
+	h3="" 
+	h4="" 
+/>
+</ihu>
+

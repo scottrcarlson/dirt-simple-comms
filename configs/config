@@ -1,0 +1,6 @@
+Compression yes
+CompressionLevel 6
+ExitOnForwardFailure yes
+TCPKeepAlive no
+ServerAliveInterval 60
+ServerAliveCountMax 5760
