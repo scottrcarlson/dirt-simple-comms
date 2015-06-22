@@ -23,14 +23,15 @@ Configure for Resiliance / Compression / Clean Exit on Forward Failure
 4. Modify the config
 
 TCPKeepAlive no
-
 ServerAliveInterval 60
-
 ServerAliveCountMax 5760
-
 Compression yes
-
 CompressionLevel 6
-
 ExitOnForwardFailure yes
 
+
+Panstamp NRG Hooked up to RPI UART
+GPIO 17 Used for Radio Reset
+
+gpio -g mode 17 out
+gpio -g write 17 1
