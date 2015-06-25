@@ -1,21 +1,21 @@
 # [dirt simple comms]
 
-The goal is integrate various useful tools for de-centrialized authenticated/encrypted communication.
+What:
+Integrate useful CLI tools for de-centrialized authenticated/encrypted communication over arbitrary mediums.
 
-What 
 ----------------------------
 1. Transport Medium (Internet, Serial, RF)
 2. End to End Encyption via SSH (Port Forwarding)
 3. Support UDP based tools over SSH  ( PartyA<->[UDP--<>TCP<--->SSH_TUNNEL<--->TCP<>UDP]<->PartyB )
-4. IHU (I Hear U) for VOIP Chat (UDP {Investigate broken TCP?])
-5. utalk for Text Chat (UDP)
+4. IHU (I Hear U) for VOIP (UDP {Investigate broken TCP?])
+5. utalk for Text (UDP)
 6. Option to use SLIP to run the stack over serial.
-7. Text Mode Exclusive
-
+7. CLI Mode Exclusive (ncurses based....?)
 ----------------------------
 More details to follow..
 ----------------------------
 
+---Collecting Notes for Assimilation----
 SSH Setup
 Configure for Resiliance / Compression / Clean Exit on Forward Failure
 
@@ -30,7 +30,6 @@ ServerAliveCountMax 5760
 Compression yes
 CompressionLevel 6
 ExitOnForwardFailure yes
-
 
 Panstamp NRG Hooked up to RPI UART
 GPIO 17 Used for Radio Reset
