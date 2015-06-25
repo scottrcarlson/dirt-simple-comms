@@ -11,11 +11,13 @@ Integrate useful CLI tools for de-centrialized authenticated/encrypted communica
 5. utalk for Text (UDP)
 6. Option to use SLIP to run the stack over serial.
 7. CLI Mode Exclusive (ncurses based....?)
+
 ----------------------------
 More details to follow..
 ----------------------------
 
 ---Collecting Notes for Assimilation----
+
 SSH Setup
 Configure for Resiliance / Compression / Clean Exit on Forward Failure
 
