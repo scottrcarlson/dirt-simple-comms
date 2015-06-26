@@ -13,6 +13,8 @@ function ctrl_c() {
     kill -1 $SSH_PID1 &> /dev/null
     kill -1 $SSH_PID2 &> /dev/null
     kill -1 $SLIP_PID  &> /dev/null
+    kill -1 $SOCAT_PID  &> /dev/null
+
     cat logo
     printf " NO CARRIER\n\n"
     if [[ $RESTART == "YES" ]] ; then
@@ -52,7 +54,7 @@ function show_help() {
 }
 
 #Initial Defaults
-SLIP_BAUD=115200
+SLIP_BAUD=57600
 SSH_USER="root"
 ARG_VALID=0 # Simple argument validation mechanism (counter)
 LOOP=NO     # Loop will trigger Restart=YES right before executing the final commands 
