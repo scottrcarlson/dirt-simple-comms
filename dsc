@@ -121,8 +121,12 @@ trap ctrl_c INT
 
 if [[ $SLIP_DEV != "" ]] ; then                  # Make final determination.
     #Create and Configure our SLIP
+    printf "creating pty and starting up binary-->ascii converter.\n"
+    socat -ddd -ddd PTY,link=/dev/ttyDSC,raw,echo=0 "EXEC:'python panstamp_bridge.py /dev/ttyAMA0',pty,raw,echo=0" &
+    SOCAT_PID=$!
+    sleep 1
     printf "configuring SLIP Between $LOCAL_IP_ADDR --> $REMOTE_IP_ADDR Over $SLIP_DEV..."
-    slattach -p slip -s $SLIP_BAUD $SLIP_DEV > /dev/null &
+    slattach -p slip -s $SLIP_BAUD /dev/ttyDSC  > /dev/null &
     SLIP_PID=$!
     sleep 1
     ifconfig sl0 $LOCAL_IP_ADDR pointopoint $REMOTE_IP_ADDR up > /dev/null

@@ -34,7 +34,7 @@ def write_to_stdout():
 unprocessed_payload_bytes = []
 data_from_modem_sketch = open('/tmp/bytes_from_modem_sketch_' + sys.argv[1].replace('/','_').replace('.','_'), 'wb')
 data_to_modem_sketch = open('/tmp/bytes_to_modem_sketch_' + sys.argv[1].replace('/','_').replace('.','_'), 'wb')
-modem = SerialModem(sys.argv[1], 38400, verbose=False)
+modem = SerialModem(sys.argv[1], 57600, verbose=False)
 modem.setRxCallback(_ccPacketReceived)
 
 thread.start_new_thread(read_from_stdin, ())
