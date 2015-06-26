@@ -35,6 +35,3 @@ ExitOnForwardFailure yes
 
 Panstamp NRG Hooked up to RPI UART
 GPIO 17 Used for Radio Reset
-
-gpio -g mode 17 out
-gpio -g write 17 1
