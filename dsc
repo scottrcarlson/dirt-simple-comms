@@ -13,7 +13,7 @@ function ctrl_c() {
     kill -1 $SSH_PID1 &> /dev/null
     kill -1 $SSH_PID2 &> /dev/null
     kill -1 $SLIP_PID  &> /dev/null
-    kill -1 $SOCAT_PID  &> /dev/null
+    #kill -1 $SOCAT_PID  &> /dev/null
 
     cat logo
     printf " NO CARRIER\n\n"
@@ -123,12 +123,12 @@ trap ctrl_c INT
 
 if [[ $SLIP_DEV != "" ]] ; then                  # Make final determination.
     #Create and Configure our SLIP
-    printf "creating pty and starting up binary-->ascii converter.\n"
-    socat -ddd -ddd PTY,link=/dev/ttyDSC,raw,echo=0 "EXEC:'python panstamp_bridge.py /dev/ttyAMA0',pty,raw,echo=0" &
-    SOCAT_PID=$!
-    sleep 1
+    #printf "creating pty and starting up binary-->ascii converter.\n"
+    #socat -ddd -ddd PTY,link=/dev/ttyDSC,raw,echo=0 "EXEC:'python panstamp_bridge.py /dev/ttyAMA0',pty,raw,echo=0" &
+    #SOCAT_PID=$!
+    #sleep 20
     printf "configuring SLIP Between $LOCAL_IP_ADDR --> $REMOTE_IP_ADDR Over $SLIP_DEV..."
-    slattach -p slip -s $SLIP_BAUD /dev/ttyDSC  > /dev/null &
+    slattach -p slip -s $SLIP_BAUD $SLIP_DEV  > /dev/null &
     SLIP_PID=$!
     sleep 1
     ifconfig sl0 $LOCAL_IP_ADDR pointopoint $REMOTE_IP_ADDR up > /dev/null
