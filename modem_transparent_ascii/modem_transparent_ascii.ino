@@ -4,7 +4,7 @@
 #define TIMER         timer1a0
 #define RESET_TIMER()
 #define INIT_TIMER()  TIMER.attachInterrupt(isrT1event)
-#define START_TIMER() TIMER.start(100)
+#define START_TIMER() TIMER.start(10)
 #define STOP_TIMER()  TIMER.stop()
 
 /**
@@ -13,7 +13,6 @@
 #define LEDPIN  4
 #define RX_LED 16  //14
 #define TX_LED 0
-
 
 /**
  * This function is called whenever a wireless packet is received
@@ -50,7 +49,7 @@ void setup()
   pinMode(TX_LED, OUTPUT);
   pinMode(RX_LED, OUTPUT);
 
-  
+  //Welcome Blinks  
   for(byte i=0 ; i<3 ; i++) 
   {
     digitalWrite(TX_LED, HIGH);
@@ -62,6 +61,7 @@ void setup()
   }
   digitalWrite(TX_LED, LOW);
   digitalWrite(RX_LED, LOW);
+
   // Reset serial buffer
   memset(strSerial, 0, sizeof(strSerial));
 
@@ -91,9 +91,6 @@ void loop()
   {
     packetAvailable = false;
     
-    // Disable wireless reception
-    panstamp.rxOff();
-
     digitalWrite(RX_LED, HIGH);
    /* Serial.print("(");
     if (rxPacket->rssi < 0x10)
@@ -113,8 +110,6 @@ void loop()
     
     // Enable wireless reception
     digitalWrite(RX_LED, LOW);
-
-    panstamp.rxOn();
   }
   
   CCPACKET packet;
@@ -123,9 +118,7 @@ void loop()
     checkForData = false;
     if (len > 0) 
     {
-
       // Disable wireless reception
-      panstamp.rxOff();
       digitalWrite(TX_LED, HIGH);
       //Set the Packet Length
       packet.length = len + 1;
@@ -138,7 +131,6 @@ void loop()
       memset(strSerial, 0, sizeof(strSerial));
       len = 0;
       // Enable wireless reception
-      panstamp.rxOn();
       digitalWrite(TX_LED, LOW);
     }
   }
@@ -147,7 +139,6 @@ void loop()
   if (Serial.available() > 0)
   {
     // Disable wireless reception
-    panstamp.rxOff();
     digitalWrite(TX_LED, HIGH);
     ch = Serial.read();
     STOP_TIMER();
@@ -184,7 +175,6 @@ void loop()
       START_TIMER();
     }
     // Enable wireless reception
-    panstamp.rxOn();
      digitalWrite(TX_LED, LOW);
   }
 }
