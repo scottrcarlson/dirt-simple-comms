@@ -1,17 +1,24 @@
+#include <SimpleFIFO.h>
 #include "modem.h"
-#include "HardwareSerial.h"
+//#include "HardwareSerial.h"
+#include "cc430uart.h"
 #include "timer1a0.h"
+
 #define TIMER         timer1a0
 #define RESET_TIMER()
 #define INIT_TIMER()  TIMER.attachInterrupt(isrT1event)
-#define START_TIMER() TIMER.start(10)
+#define START_TIMER() TIMER.start(20)
 #define STOP_TIMER()  TIMER.stop()
 
+SimpleFIFO<char,3072> outbound_FIFO;
+ 
+CCPACKET packet;    //Radio Packet Structure
 /**
- * LED pin
+ * LED pinsh
  */
 #define LEDPIN  4
-#define RX_LED 16  //14
+#define RX_LED 16 //14
+//16
 #define TX_LED 0
 
 /**
@@ -43,11 +50,12 @@ void isrT1event(void)
  */
 void setup()
 {
-  pinMode(LEDPIN, OUTPUT);
-  digitalWrite(LEDPIN, HIGH);
-
   pinMode(TX_LED, OUTPUT);
   pinMode(RX_LED, OUTPUT);
+  digitalWrite(TX_LED, HIGH);
+  digitalWrite(RX_LED, HIGH);
+
+  sleep(3000);
 
   //Welcome Blinks  
   for(byte i=0 ; i<3 ; i++) 
@@ -65,16 +73,17 @@ void setup()
   // Reset serial buffer
   memset(strSerial, 0, sizeof(strSerial));
 
+  
   Serial.begin(38400);
   Serial.flush();
   Serial.println("");
-
+  
   // Disable address check from the RF IC
   panstamp.radio.disableAddressCheck();
-
+   
   // Declare RF callback function
   panstamp.attachInterrupt(rfPacketReceived);
-  
+ 
   // Initialize Timer object
   INIT_TIMER();
 }
@@ -112,65 +121,84 @@ void loop()
     digitalWrite(RX_LED, LOW);
   }
   
-  CCPACKET packet;
+  
+  // Buffer Fille Timed out, let send the remaining bytes over the radio
   if (checkForData == true) 
   {
     checkForData = false;
     if (len > 0) 
     {
+      //Serial.println("BUFFER FILL TIMEOUT, Sending " + String(len) + " bytes.");
       // Disable wireless reception
       digitalWrite(TX_LED, HIGH);
       //Set the Packet Length
-      packet.length = len + 1;
-      byte i;
-      for(i=0 ; i<packet.length ; i++)
-      {     
-        packet.data[i]=strSerial[i];
-      }
-      panstamp.radio.sendData(packet);
-      memset(strSerial, 0, sizeof(strSerial));
-      len = 0;
-      // Enable wireless reception
-      digitalWrite(TX_LED, LOW);
-    }
-  }
-  
-  // Read serial command
-  if (Serial.available() > 0)
-  {
-    // Disable wireless reception
-    digitalWrite(TX_LED, HIGH);
-    ch = Serial.read();
-    STOP_TIMER();
-    RESET_TIMER();
-    //Serial.println("LEN=" + String(len) + " Char: " + char(ch));
-    if (len == SERIAL_BUF_LEN-1)
-    {
-      strSerial[len] = ch; // Put the last char read into buffer
-      //Serial.println("BUFFER FILLED" + String(len));
-      
-      //Serial.println("1");
-      byte i; 
-      //Serial.println("2");
-      packet.length = len + 1;
+      //packet.length = len + 1;
+      packet.length = len;
       //Serial.println("Buffer Contents:[" + String(strSerial) + "]");
       //Serial.println("packet length:" + String(packet.length));
-      //Serial.println("3");
+      byte i;
       for(i=0 ; i<packet.length ; i++)
       {     
         packet.data[i]=strSerial[i];
         //Serial.print(packet.data[i], HEX);
       }
-      // Serial.println("4");
+      panstamp.radio.sendData(packet);
+      
+      //Serial.println("");
+      memset(strSerial, 0, sizeof(strSerial));
+      len = 0;
+      
+      // Enable wireless reception
+      digitalWrite(TX_LED, LOW);
+    }
+  }
+  
+  // Read all available data from Uart and queue it up!
+  if (Serial.available()) 
+  {
+    while (Serial.available())
+    {
+      if (Serial.available() > 0)
+      {
+        outbound_FIFO.enqueue(Serial.read());
+      }
+    }
+  }
+  
+  if (outbound_FIFO.count() > 0)
+   // Serial.println("FIFO: " + String(outbound_FIFO.count()));
+   //if (Serial.available())
+   {
+    digitalWrite(TX_LED, HIGH);
+    STOP_TIMER();
+    RESET_TIMER();
+    //Serial.println("LEN=" + String(len) + " Char: " + char(ch));
+    if (len == SERIAL_BUF_LEN-1)
+    {
+      strSerial[len] = outbound_FIFO.dequeue(); // Put the last char into buffer
+      packet.length = len + 1;
+      //Serial.println("BUFFER FILLED" + String(packet.length));
+      
+      //Serial.println("1");
+      byte i; 
+      //Serial.println("2");      
+     //Serial.println("Buffer Contents:[" + String(strSerial) + "]");
+      //Serial.println("packet length:" + String(packet.length));
+      //Serial.println("3");
+      for(i=0 ; i<packet.length ; i++)
+      {     
+        packet.data[i]=strSerial[i];
+      }
+      //Serial.println("");
       // Send packet via RF
       panstamp.radio.sendData(packet);
       //Serial.println("5");
-      memset(strSerial, 0, sizeof(strSerial));
       len = 0;
+      memset(strSerial, 0, sizeof(strSerial));
     }
     else
     {
-      strSerial[len] = ch; 
+      strSerial[len] = outbound_FIFO.dequeue();
       len++;
       START_TIMER();
     }
