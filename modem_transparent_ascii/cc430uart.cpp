@@ -61,16 +61,16 @@ void CC430UART::begin(uint32_t baud)
   divider = (clkfreq >> 4)/baud;
   ucbrf = (clkfreq % (baud << 4)) / baud;
 
-/*
+
   UCA0BR0 = divider;                   // Integer part of UART frequency scaler (low byte)
   UCA0BR1 = divider>>8;                // Integer part of UART frequency scaler (high byte)
   UCA0MCTL = ucbrf + UCBRS_0 + UCOS16; // This turns on oversampling and sets the decimal part of the scaler
-*/
+
 
   // 12mhz @ 600kbps
-  UCA0BR0 = 0x14;
-  UCA0BR1 = 0x00;
-  UCA0MCTL =0x00;
+  //UCA0BR0 = 0x14;
+  //UCA0BR1 = 0x00;
+  //UCA0MCTL =0x00;
   
 	UCA0CTL1 &= ~UCSWRST;
 	UCA0IE |= UCRXIE;                    // Enable Rx interrupt
@@ -194,3 +194,5 @@ void uartISR(void)
       break;
   }
 }
+
+

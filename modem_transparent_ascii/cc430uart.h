@@ -27,7 +27,7 @@
 
 #include "wiring.h"
 
-#define SERIAL_BUFFER_SIZE 64
+#define SERIAL_BUFFER_SIZE 512
 
 class CC430UART
 {   
