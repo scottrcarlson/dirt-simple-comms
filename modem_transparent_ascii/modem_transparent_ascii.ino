@@ -15,7 +15,7 @@ CCPACKET packet;    //Radio Packet Structure
  * LED pinsh
  */
 #define LEDPIN  4
-#define RX_LED 14 //16
+#define RX_LED 16 //14
 //16
 #define TX_LED 0
 

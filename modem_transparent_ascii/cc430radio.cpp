@@ -68,8 +68,8 @@ void CC430RADIO::init(uint8_t freq, uint8_t mode)
   reset();
 
   // Set transmission power
-  setTxPowerAmp(PA_LowPower);
-
+  //setTxPowerAmp(PA_LowPower);
+  setTxPowerAmp(PA_LongDistance);
   // Clear interrupt flags
   MRFI_CLEAR_SYNC_PIN_INT_FLAG();
   MRFI_CLEAR_GDO0_INT_FLAG();
